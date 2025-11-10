@@ -1,70 +1,73 @@
 import math
 
 class Angle:
-    """Класс для представления и работы с углами"""
-    
+    #если is_degrees передаем радианы, иначе градусы
+    #внутри храним все в радинах для единства и удобства(все стандартные функции в python работают в радинах)
     def __init__(self, value=0, is_degrees=False):
         # Инициализация угла: по умолчанию в радианах, можно задать в градусах
         if is_degrees:
             # Преобразование градусов в радианы
+            #создаем поле класаа _radians, _ значит что это внутренняя пременная и не предназначена для внешнего использования
             self._radians = math.radians(value)
-        else:
+        else:   
             # Нормализация угла в диапазон [0, 2π)
             self._radians = self._normalize(value)
     
     def _normalize(self, angle):
-        """Нормализация угла в диапазон [0, 2π)"""
+        # 2pi = 360 градусов
         two_pi = 2 * math.pi
-        # Приведение угла к диапазону [0, 2π)
+        # Приведение угла к диапазону [0, 2π) делением на 360 град
         normalized = angle % two_pi
         # Обеспечение неотрицательности
         if normalized < 0:
             normalized += two_pi
         return normalized
     
-    @property
+    @property #превращаем метод в свойство 
+    #позволяет использовать геттер без скобок как атрибут класса
     def radians(self):
-        """Геттер для получения угла в радианах"""
+        #Геттер для получения угла в радианах
         return self._radians
     
-    @radians.setter
+    @radians.setter 
     def radians(self, value):
-        """Сеттер для установки угла в радианах"""
+        #Сеттер для установки угла в радианах
         self._radians = self._normalize(value)
     
     @property
     def degrees(self):
-        """Геттер для получения угла в градусах"""
+        #Геттер для получения угла в градусах
         return math.degrees(self._radians)
     
     @degrees.setter
     def degrees(self, value):
-        """Сеттер для установки угла в градусах"""
+        #Сеттер для установки угла в градусах
         self._radians = self._normalize(math.radians(value))
     
-    def __float__(self):
-        """Преобразование к float (в радианах)"""
+    def __float__(self): #магический метод
+        #Преобразование к float (в радианах)
         return float(self._radians)
     
     def __int__(self):
-        """Преобразование к int (в радианах)"""
+        #Преобразование к int (в радианах)
         return int(self._radians)
     
     def __str__(self):
-        """Строковое представление для пользователя"""
+        #Строковое представление для пользователя, так нужен для print
         return f"{self.degrees:.2f}° ({self._radians:.4f} rad)"
+        #:.2f оставляет две цифры после запятой, а :.4f - 4 цифры
     
     def __repr__(self):
-        """Строковое представление для разработчика"""
+        #Строковое представление для разработчика(отладки)
         return f"Angle({self._radians})"
     
-    def __eq__(self, other):
-        """Проверка равенства углов с учетом периодичности"""
-        if isinstance(other, Angle):
+    def __eq__(self, other): #магический метод который вызывается при ==
+        #Проверка равенства углов с учетом периодичности
+        if isinstance(other, Angle): #Проверяем, является ли other объектом класса Angle
             # Сравнение двух углов
-            return math.isclose(self._radians, other._radians, abs_tol=1e-10)
+            return math.isclose(self._radians, other._radians, abs_tol=1e-10)#abs_tol=1e-10 - допустимая погрешность (0.0000000001 радиан)
         elif isinstance(other, (int, float)):
-            # Сравнение с числом (в радианах)
+            # Сравнение с числом (представляем число в радианах)
             return math.isclose(self._radians, self._normalize(other), abs_tol=1e-10)
         return False
     
