@@ -71,84 +71,82 @@ class Angle:
             return math.isclose(self._radians, self._normalize(other), abs_tol=1e-10)
         return False
     
-    def __lt__(self, other):
-        """Проверка меньше ли текущий угол"""
-        if isinstance(other, Angle):
+    def __lt__(self, other): #реализация оператора < для сравнения углов
+        if isinstance(other, Angle):# проверка является ли наш объект объектом класса
             return self._radians < other._radians
-        elif isinstance(other, (int, float)):
-            return self._radians < self._normalize(other)
-        return NotImplemented
+        elif isinstance(other, (int, float)): # если other число
+            return self._radians < self._normalize(other) #нормализуем other и сравниваем
+        return NotImplemented # спец тип что операция не поддерживается
     
-    def __le__(self, other):
-        """Проверка меньше или равен текущий угол"""
+    def __le__(self, other): # реализация оператора <= для сравнения углов
+        # аналогично реализации __lt__
         if isinstance(other, Angle):
             return self._radians <= other._radians
         elif isinstance(other, (int, float)):
             return self._radians <= self._normalize(other)
         return NotImplemented
     
-    def __add__(self, other):
-        """Сложение углов или с числом (в радианах)"""
-        if isinstance(other, Angle):
+    def __add__(self, other): # реализация сложения (в радианах)
+        if isinstance(other, Angle):# проверка является ли наш объект объектом класса
             # Сложение двух углов
-            return Angle(self._radians + other._radians)
+            return Angle(self._radians + other._radians) # складываем радианы углов и создаем новый объект Angle
         elif isinstance(other, (int, float)):
             # Сложение с числом (в радианах)
-            return Angle(self._radians + other)
+            return Angle(self._radians + other) #интерпретируем его как радианы и складываем
+        # нет явной нормализации other в радианы т.к. конструктор Angle сам вызывает нормализацию
         return NotImplemented
     
-    def __radd__(self, other):
-        """Правое сложение"""
+    def __radd__(self, other): # Правое сложение (то есть когда: число + angle)
+        # просто делегируем методу __add__
         return self.__add__(other)
     
-    def __sub__(self, other):
-        """Вычитание углов или числа (в радианах)"""
-        if isinstance(other, Angle):
+    def __sub__(self, other):#Вычитание углов или числа (в радианах)
+        if isinstance(other, Angle):# проверка является ли наш объект объектом класса
             # Вычитание двух углов
             return Angle(self._radians - other._radians)
         elif isinstance(other, (int, float)):
             # Вычитание числа (в радианах)
-            return Angle(self._radians - other)
+            return Angle(self._radians - other) #интерпретируем его как радианы и вычитаем
         return NotImplemented
     
-    def __rsub__(self, other):
-        """Правое вычитание"""
+    def __rsub__(self, other): #Правое вычитание (число - angle)
         if isinstance(other, (int, float)):
+            # Не можем просто вызвать __sub__, т.к. операция не коммутативна
             return Angle(other - self._radians)
         return NotImplemented
     
-    def __mul__(self, other):
-        """Умножение угла на число"""
+    def __mul__(self, other): #Умножение угла на число
+        # осуществлена только умножение угла на скаляр т.к. умножение угла на угол не имеет смысла 
         if isinstance(other, (int, float)):
             return Angle(self._radians * other)
         return NotImplemented
     
-    def __rmul__(self, other):
-        """Правое умножение"""
+    def __rmul__(self, other): #Правое умножение
         return self.__mul__(other)
     
-    def __truediv__(self, other):
-        """Деление угла на число"""
+    def __truediv__(self, other): # Деление угла на число
         if isinstance(other, (int, float)):
-            if other == 0:
-                raise ZeroDivisionError("Деление угла на ноль")
+            if other == 0: # проверка чтобы не было деления на 0
+                raise ZeroDivisionError("Деление угла на ноль") # встроеное в питон исключение которое возникает при деление на 0
             return Angle(self._radians / other)
         return NotImplemented
 
 
 class AngleRange:
-    """Класс для представления промежутков углов"""
+    #Класс для представления промежутков углов
     
-    def __init__(self, start, end, start_inclusive=True, end_inclusive=True):
+    def __init__(self, start, end, start_inclusive=True, end_inclusive=True):# start и end границы диапазона, start_inclusive - включать ли границы(по умолчанию включаются)
         # Преобразование начальной точки в Angle если необходимо
-        if isinstance(start, (int, float)):
+        if isinstance(start, (int, float)): # проверка является ли начало числом
+            # конвертируем начало в класс угол для удобства и использования его методов
             self.start = Angle(start)
-        elif isinstance(start, Angle):
+        elif isinstance(start, Angle): # если начальная точка уже angle то просто создаем атрибут старт
             self.start = start
         else:
             raise TypeError("Начальная точка должна быть числом или Angle")
         
         # Преобразование конечной точки в Angle если необходимо
+        # аналогично как со старт
         if isinstance(end, (int, float)):
             self.end = Angle(end)
         elif isinstance(end, Angle):
@@ -157,30 +155,35 @@ class AngleRange:
             raise TypeError("Конечная точка должна быть числом или Angle")
         
         # Флаги включения границ
+        # true значит включено [
+        # false значит не включено (
         self.start_inclusive = start_inclusive
         self.end_inclusive = end_inclusive
     
-    def __str__(self):
-        """Строковое представление для пользователя"""
+    def __str__(self): # Строковое представление для пользователя
+        #Выбираем квадратные [ ] или круглые ( ) скобки в зависимости от флагов включения
         start_bracket = "[" if self.start_inclusive else "("
         end_bracket = "]" if self.end_inclusive else ")"
+        # используем ф-строку для красивого вывода
         return f"{start_bracket}{self.start} - {self.end}{end_bracket}"
     
-    def __repr__(self):
-        """Строковое представление для разработчика"""
+    def __repr__(self): # Строковое представление для разработчика
         return f"AngleRange({self.start._radians}, {self.end._radians}, {self.start_inclusive}, {self.end_inclusive})"
     
-    def __eq__(self, other):
-        """Проверка эквивалентности промежутков"""
-        if not isinstance(other, AngleRange):
+    def __eq__(self, other): #Проверка эквивалентности промежутков
+    # два промежутка равны если все параметры равны 
+        if not isinstance(other, AngleRange):# только объекты AngleRange могут быть равны
             return False
+        # сравниваем все параметры
         return (self.start == other.start and 
                 self.end == other.end and 
                 self.start_inclusive == other.start_inclusive and 
                 self.end_inclusive == other.end_inclusive)
     
-    def __abs__(self):
-        """Длина промежутка в радианах"""
+    def __abs__(self): #Длина промежутка в радианах
+        # у нас есть два случая 
+        # если конец больше начала то просто end-start
+        # если конец меньше начала тогда 2pi - start + end
         start_rad = self.start.radians
         end_rad = self.end.radians
         
@@ -190,32 +193,35 @@ class AngleRange:
             # Учет перехода через 2π
             return 2 * math.pi - start_rad + end_rad
     
-    def __contains__(self, item):
-        """Проверка вхождения угла или промежутка"""
-        if isinstance(item, (Angle, int, float)):
+    def __contains__(self, item): # Проверка вхождения угла или промежутка, вызывается методом in
+        if isinstance(item, (Angle, int, float)): #проверка является ли item углом или числом
             # Проверка вхождения угла
-            if isinstance(item, (int, float)):
-                angle = Angle(item)
+            if isinstance(item, (int, float)): # проверка является ли item числом
+                angle = Angle(item) #создание объекта Angle из числа
             else:
-                angle = item
+                angle = item #если уже angle то используем как есть
             
-            angle_rad = angle.radians
-            start_rad = self.start.radians
-            end_rad = self.end.radians
+            angle_rad = angle.radians # получаем промежуток в радианах
+            start_rad = self.start.radians # получ начало в радианах
+            end_rad = self.end.radians # получ конец в радианах
             
             if start_rad <= end_rad:
                 # Обычный случай без перехода через 2π
-                if start_rad < angle_rad < end_rad:
+                if start_rad < angle_rad < end_rad: # проверка угол строго внутри диапазона
                     return True
-                elif angle_rad == start_rad:
-                    return self.start_inclusive
-                elif angle_rad == end_rad:
-                    return self.end_inclusive
+                elif angle_rad == start_rad: # если угол равен нач диапаз
+                    return self.start_inclusive # возврат флага включения начала
+                elif angle_rad == end_rad:# если угол равен конц диапаз
+                    return self.end_inclusive # возврат флага включения конца
             else:
                 # Случай с переходом через 2π
                 if angle_rad >= start_rad or angle_rad <= end_rad:
-                    if angle_rad > start_rad or angle_rad < end_rad:
-                        return True
+                    #Угол принадлежит диапазону с переходом если:
+                    #Он находится в "хвосте" от start до 2π ИЛИ
+                    #Он находится в "начале" от 0 до end
+                    if angle_rad > start_rad or angle_rad < end_rad: #проверка угла строго внутри
+                        return True # если строго внутри то возвращаем тру
+                    # по аналогии с первым случаем
                     elif angle_rad == start_rad:
                         return self.start_inclusive
                     elif angle_rad == end_rad:
@@ -229,19 +235,15 @@ class AngleRange:
         
         return False
     
-    def __add__(self, other):
-        """Сложение промежутков (объединение)"""
+    def __add__(self, other): # Сложение промежутков (объединение)
         if not isinstance(other, AngleRange):
             return NotImplemented
-        
-        # Упрощенная реализация - возвращаем список промежутков
+        # Упрощенная реализация возвращаем список промежутков
         return [self, other]
     
-    def __sub__(self, other):
-        """Вычитание промежутков (разность)"""
+    def __sub__(self, other):# Вычитание промежутков (разность)
         if not isinstance(other, AngleRange):
             return NotImplemented
-        
         # Упрощенная реализация - возвращаем список промежутков
         return [self]
 
