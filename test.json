@@ -1,0 +1,47 @@
+{
+    "printed_sq": "a",
+    "undo_stack": [
+        "a"
+    ],
+    "redo_stack": [
+        "ctrl+p"
+    ],
+    "commands": {
+        "a": {
+            "type": "KeyCommand",
+            "args": {
+                "key": "a"
+            }
+        },
+        "b": {
+            "type": "KeyCommand",
+            "args": {
+                "key": "b"
+            }
+        },
+        "c": {
+            "type": "KeyCommand",
+            "args": {
+                "key": "c"
+            }
+        },
+        "d": {
+            "type": "KeyCommand",
+            "args": {
+                "key": "d"
+            }
+        },
+        "ctrl++": {
+            "type": "VolumeUpCommand",
+            "args": {}
+        },
+        "ctrl+-": {
+            "type": "VolumeDownCommand",
+            "args": {}
+        },
+        "ctrl+p": {
+            "type": "MediaPlayerCommand",
+            "args": {}
+        }
+    }
+}
